@@ -62,17 +62,28 @@ pipeline {
                 }
             }
         }
+        stage('Deploying to Google Cloud Run') {
+            steps {
+                withCredentials([file(credentialsId:'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    script {
+                        echo 'Deploying to Google Cloud Run.............'
+                        sh '''
+                            export PATH=$PATH:${GCLOUD_PATH}
+                            
+                            gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+                            
+                            gcloud config set project ${GCP_PROJECT}
+                            
+                            gcloud run deploy mlops-project-first \
+                                -- image=gcr.io/${GCP_PROJECT}/mlops-project-first:latest \
+                                -- platform=managed \
+                                -- region=us-central1 \
+                                -- allow=unauthenticated \
+                        '''
+                    }
+                }
+            }
+        }
     }
 
-    post {
-        always {
-            echo 'Pipeline execution completed.'
-        }
-        failure {
-            echo 'Pipeline failed! Check logs above for details.'
-        }
-        success {
-            echo 'Pipeline succeeded! Docker image is ready for deployment.'
-        }
-    }
 }
