@@ -5,7 +5,6 @@ pipeline {
         VENV_DIR = 'venv'
         GCP_PROJECT = "manifest-campus-474314-i0"
         GCLOUD_PATH = "/var/jenkins_home/google-cloud-sdk/bin"
-        DOCKER_IMAGE = "gcr.io/${GCP_PROJECT}/ml-project:latest"
     }
 
     stages {
@@ -39,25 +38,9 @@ pipeline {
             }
         }
 
-        stage('Training ML Model') {
-            steps {
-                withCredentials([file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    script {
-                        echo 'Training ML model with GCP credentials............'
-                        sh '''
-                            . ${VENV_DIR}/bin/activate
-                            export GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
-                            echo "Running training pipeline..."
-                            python pipeline/training_pipeline.py
-                        '''
-                    }
-                }
-            }
-        }
-
         stage('Building and Pushing Docker Image to GCR') {
             steps {
-                withCredentials([file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                withCredentials([file(credentialsId:'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     script {
                         echo 'Building and Pushing Docker Image to GCR.............'
                         sh '''
@@ -69,9 +52,9 @@ pipeline {
                             
                             gcloud auth configure-docker --quiet
                             
-                            docker build -t ${DOCKER_IMAGE} .
+                            docker build -t gcr.io/${GCP_PROJECT}/mlops-project-first:latest . 
                             
-                            docker push ${DOCKER_IMAGE}
+                            docker push gcr.io/${GCP_PROJECT}/mlops-project-first:latest
                             
                             echo "Docker image pushed successfully to ${DOCKER_IMAGE}"
                         '''
