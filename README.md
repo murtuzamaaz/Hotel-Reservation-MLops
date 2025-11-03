@@ -131,29 +131,46 @@ docker images
 
 ## 📂 Project Structure
 hotel-Reservation-mlops/
+```
+hotel-reservation-mlops/
 │
 ├── data/
-│ └── hotel_bookings.csv # Raw dataset
+│ ├── raw/ # Raw hotel booking data
+│ └── processed/ # Cleaned & preprocessed data
 │
 ├── notebooks/
-│ └── EDA.ipynb # Exploratory analysis
+│ └── EDA.ipynb # Exploratory Data Analysis notebook
 │
 ├── src/
-│ ├── data_ingestion.py # GCS data fetching & preprocessing
-│ ├── feature_engineering.py # Label encoding, missing value handling
+│ ├── data_ingestion.py # Loads data from GCP Storage / local path
+│ ├── feature_engineering.py # Encodes categorical vars, feature scaling, etc.
 │ ├── model/
-│ │ ├── train.py # Model training and evaluation
-│ │ └── predict.py # Prediction API
-│ └── utils/
-│ └── logger.py # Centralized logging
+│ │ ├── train.py # Model training, evaluation, and MLflow logging
+│ │ ├── predict.py # Handles inference API logic
+│ │ └── init.py
+│ ├── pipeline/
+│ │ ├── train_pipeline.py # Combined data → model training workflow
+│ │ ├── predict_pipeline.py # Combined data → inference workflow
+│ │ └── init.py
+│ ├── utils/
+│ │ ├── logger.py # Centralized logging utility
+│ │ ├── helpers.py # Reusable helper functions
+│ │ └── init.py
+│ └── init.py
 │
-├── app.py # Flask inference app
-├── Dockerfile # Container build config
-├── Jenkinsfile # CI/CD pipeline config
-├── requirements.txt # Dependencies
-├── README.md # Project documentation
-└── mlruns/ # MLflow tracking directory
-
+├── app.py # Flask app for serving predictions
+│
+├── Dockerfile # Docker build configuration
+├── Jenkinsfile # Jenkins CI/CD pipeline definition
+├── requirements.txt # Python dependencies
+├── config.yaml # Configuration for paths, parameters, etc.
+├── README.md # Documentation
+├── .dockerignore # Ignored files for Docker context
+├── .gitignore # Ignored files for Git
+│
+└── mlruns/ # MLflow experiment tracking directory
+└── ... # Stored model artifacts and logs
+```
 Next, run the container. This command uses Docker-in-Docker (dind) and maps the Docker socket, allowing Jenkins to run Docker commands.
 
 Note: The \ character is for Linux/macOS. On Windows (CMD/PowerShell), replace \ with ^.
@@ -208,9 +225,10 @@ apt-get install -y curl apt-transport-https ca-certificates gnupg
 ```
 
 # Add the gcloud SDK repository
+```
 curl [https://packages.cloud.google.com/apt/doc/apt-key.gpg](https://packages.cloud.google.com/apt/doc/apt-key.gpg) | apt-key add -
 echo "deb [https://packages.cloud.google.com/apt](https://packages.cloud.google.com/apt) cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-
+```
 # Install the SDK
 ```
 apt-get update && apt-get install -y google-cloud-sdk
