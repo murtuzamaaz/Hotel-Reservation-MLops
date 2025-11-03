@@ -16,6 +16,9 @@ The main goal wasn’t just to build a machine learning model, but to implement 
 * Achieve strong performance metrics on hotel reservation data.
 
 ---
+## ScreenShots
+<img width="1894" height="863" alt="Screenshot 2025-11-03 195615" src="https://github.com/user-attachments/assets/1bc49eff-ab9f-48dc-8ab2-61299d7fcdf3" />
+
 
 ## ⚙️ MLOps Stack
 
