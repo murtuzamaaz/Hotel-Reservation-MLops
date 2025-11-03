@@ -93,7 +93,7 @@ The main goal wasn’t just to build a machine learning model, but to implement 
 
 1.  **Clone the Repository**
     ```bash
-    git clone [https://github.com/murtuzamaaz/Hotel-Reservation-MLops/](https://github.com/murtuzamaaz/Hotel-Reservation-MLops/)
+    git clone https://github.com/murtuzamaaz/Hotel-Reservation-MLops/
     cd hotel-Reservation-mlops
     ```
 
@@ -130,7 +130,29 @@ docker images
 
 
 ## 📂 Project Structure
-. ├── 📂 data/ # Raw and processed datasets ├── 📂 src/ │ ├── 📂 data_ingestion/ # Scripts for reading and validating data │ ├── 📂 preprocessing/ # Feature engineering scripts │ ├── 📂 model/ # Model training, tuning, evaluation │ └── 📂 utils/ # Helper functions and configs ├── 📂 notebooks/ # EDA and experimentation ├── 📂 jenkins/ # Jenkinsfile and pipeline definitions ├── 📂 docker/ # Dockerfile and related configs ├── 📂 mlruns/ # MLflow tracking logs ├── 📜 requirements.txt # Dependencies ├── 📜 app.py # Flask/FastAPI app for inference ├── 📜 Dockerfile ├── 📜 Jenkinsfile └── 📜 README.md
+hotel-Reservation-mlops/
+│
+├── data/
+│ └── hotel_bookings.csv # Raw dataset
+│
+├── notebooks/
+│ └── EDA.ipynb # Exploratory analysis
+│
+├── src/
+│ ├── data_ingestion.py # GCS data fetching & preprocessing
+│ ├── feature_engineering.py # Label encoding, missing value handling
+│ ├── model/
+│ │ ├── train.py # Model training and evaluation
+│ │ └── predict.py # Prediction API
+│ └── utils/
+│ └── logger.py # Centralized logging
+│
+├── app.py # Flask inference app
+├── Dockerfile # Container build config
+├── Jenkinsfile # CI/CD pipeline config
+├── requirements.txt # Dependencies
+├── README.md # Project documentation
+└── mlruns/ # MLflow tracking directory
 
 Next, run the container. This command uses Docker-in-Docker (dind) and maps the Docker socket, allowing Jenkins to run Docker commands.
 
@@ -195,65 +217,121 @@ apt-get update && apt-get install -y google-cloud-sdk
 gcloud --version
 exit
 ```
-🚀 Running the CI/CD Pipeline
-Once your Jenkins container is running, follow these steps to run the build.
 
-1. Access Jenkins & Initial Setup
-Navigate to http://localhost:8080 in your browser.
+---
 
-Get the initial admin password from the container's logs to unlock Jenkins:
+## 🚀 Running the CI/CD Pipeline
 
-Bash
+Once your Jenkins container is up and running, follow these steps to set up and execute your automated build and deployment pipeline.
 
+---
+
+### 🧭 Step 1: Access Jenkins & Initial Setup
+
+1. Open Jenkins in your browser:
+```
+http://localhost:8080
+```
+
+
+
+2. Retrieve the initial admin password from your Jenkins container logs:
+
+```
 docker exec jenkins-dind cat /var/jenkins_home/secrets/initialAdminPassword
-Copy the password, paste it into the Jenkins UI, and follow the setup instructions (installing suggested plugins is recommended).
+Copy the password, paste it into the Jenkins setup screen, and complete the setup wizard.
+✅ Tip: Installing the suggested plugins during setup is recommended.
+```
 
-2. Configure Credentials
-The pipeline needs credentials to access GitHub and GCP.
+🔐 Step 2: Configure Credentials
+Your Jenkins pipeline requires credentials to interact with GitHub and Google Cloud Platform (GCP).
 
-GitHub Token:
+🪣 GitHub Token Setup
+Create a GitHub Personal Access Token with repo permissions.
+```
+(GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic))
+```
 
-Create a GitHub Personal Access Token with repo scopes.
+In Jenkins, navigate to:
+```
+Manage Jenkins → Credentials → System → Global credentials
+Click Add Credentials → choose "Secret text".
 
-In Jenkins, go to Manage Jenkins > Credentials > System > Global credentials.
+Set:
 
-Add a new "Secret text" credential.
+ID: github-token
+(Ensure this matches the ID used in your Jenkinsfile.)
 
-Set the ID to github-token (or match the ID used in your Jenkinsfile).
+Secret: Paste your GitHub token here.
+```
 
-Paste your token into the Secret field.
+☁️ GCP Service Account Key Setup
+In your Google Cloud Console, create a Service Account.
 
-GCP Service Account Key:
+Assign the following roles:
 
-In your Google Cloud project, create a Service Account.
+Cloud Run Admin
 
-Grant it the following roles: Cloud Run Admin, Storage Admin (or Storage Object Admin), and Artifact Registry Admin.
+Storage Admin (or Storage Object Admin)
 
-Create a JSON key for this service account and download it.
+Artifact Registry Admin
 
-In Jenkins, go to Manage Jenkins > Credentials > System > Global credentials.
+Generate and download a JSON key for this service account.
 
-Add a new "Secret file" credential.
+In Jenkins, go to:
 
-Set the ID to gcp-key (or match the ID used in your Jenkinsfile).
+```
+Manage Jenkins → Credentials → System → Global credentials
+Click Add Credentials → choose "Secret file".
+```
 
-Upload your GCP JSON key file.
+Set:
 
-3. Run the Build
-From the Jenkins dashboard, create a new "Pipeline" job.
+ID: gcp-key
+(Ensure this matches the ID used in your Jenkinsfile.)
 
-In the job configuration, scroll down to the "Pipeline" section.
+Upload File: Select your downloaded JSON key.
 
-Select "Pipeline script from SCM".
+⚙️ Step 3: Run the Build
+From the Jenkins dashboard, click New Item → select Pipeline → click OK.
 
-Choose "Git" as the SCM.
+In the job configuration:
 
-Enter your repository's URL (e.g., https://github.com/murtuzamaaz/Hotel-Reservation-MLops.git).
+Scroll down to the Pipeline section.
 
-Specify the branch to build (e.g., main).
+Under Definition, select Pipeline script from SCM.
 
-Ensure the "Script Path" is Jenkinsfile.
+Set SCM to Git.
 
-Save the job.
+Enter your repository URL, e.g.:
 
-Click on Build Now to trigger the pipeline. Jenkins will now execute all stages: check out, preprocess, train, log, build, and deploy.
+```
+https://github.com/murtuzamaaz/Hotel-Reservation-MLops.git
+Specify the branch (e.g., main).
+```
+
+Set Script Path to:
+
+nginx
+Copy code
+Jenkinsfile
+Click Save.
+
+On the left sidebar, click Build Now.
+
+🧩 What Happens Next
+Once triggered, Jenkins will automatically execute all pipeline stages:
+
+Checkout – Pulls the latest code from GitHub.
+
+Install Dependencies – Sets up the environment.
+
+Train Model – Runs model training and MLflow logging.
+
+Build Docker Image – Containerizes the trained model and app.
+
+Push to GCR – Pushes the image to Google Container Registry.
+
+Deploy to Cloud Run – Deploys the image to a live, serverless endpoint.
+
+You can monitor each stage from the Jenkins dashboard — successful stages appear with a ✅ green status.
