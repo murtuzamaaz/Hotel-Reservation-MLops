@@ -18,6 +18,12 @@ The main goal wasn’t just to build a machine learning model, but to implement 
 ---
 ## ScreenShots
 <img width="1894" height="863" alt="Screenshot 2025-11-03 195615" src="https://github.com/user-attachments/assets/1bc49eff-ab9f-48dc-8ab2-61299d7fcdf3" />
+<img width="1402" height="701" alt="Screenshot 2025-11-03 195707" src="https://github.com/user-attachments/assets/a1873399-6aca-4d80-99c1-c2ddc4e74f42" />
+<img width="1421" height="497" alt="Screenshot 2025-11-03 195714" src="https://github.com/user-attachments/assets/f84a0d7d-0fca-41fb-93ab-85ab52533b64" />
+
+<img width="1894" height="863" alt="Screenshot 2025-11-03 195615" src="https://github.com/user-attachments/assets/592a2aef-7581-42d7-8c31-7e6cd8482224" />
+
+<img width="1889" height="846" alt="Screenshot 2025-11-03 200010" src="https://github.com/user-attachments/assets/d4a06ab3-a996-4dfe-bc12-bc0c65214997" />
 
 
 ## ⚙️ MLOps Stack
